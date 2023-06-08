@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -32,12 +33,24 @@ func (p *Vote) Prepare() {
 
 func (p *Vote) SaveVote(db *gorm.DB) (*Vote, error) {
 	var err error
+
+	// Check if ParticipantId has voted before
+	existingVote := Vote{}
+	err = db.Debug().Model(&Vote{}).Where("participant_id = ?", p.ParticipantId).Take(&existingVote).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return &Vote{}, err
+	}
+	if existingVote.Id != 0 {
+		return &Vote{}, errors.New("Participant has already voted")
+	}
+
+	// save the vote
 	err = db.Debug().Model(&Vote{}).Create(&p).Error
 	if err != nil {
 		return &Vote{}, err
 	}
 	if p.Id != 0 {
-		err = db.Debug().Model(&Vote{}).Where("id = ?", p.Id).Take(&p.Candidate).Error
+		err = db.Debug().Model(&Vote{}).Where("id = ?", p.CandidateId).Take(&p.Candidate).Error
 		if err != nil {
 			return &Vote{}, err
 		}
@@ -60,6 +73,17 @@ func (p *VoteCount) GetVoteCountByParticipantID(db *gorm.DB) (*[]VoteCount, erro
 			err := db.Debug().Model(&Candidate{}).Where("id = ?", voteCount[i].CandidateId).Take(&voteCount[i].Candidate).Error
 			if err != nil {
 				return &[]VoteCount{}, err
+			}
+			// get mission and vision
+			if voteCount[i].CandidateId != 0 {
+				err := db.Debug().Model(&Mission{}).Where("candidate_id = ?", &voteCount[i].Candidate.Id).Find(&voteCount[i].Candidate.Mission).Error
+				if err != nil {
+					return &[]VoteCount{}, err
+				}
+				err1 := db.Debug().Model(&Vision{}).Where("candidate_id = ?", &voteCount[i].Candidate.Id).Find(&voteCount[i].Candidate.Vision).Error
+				if err1 != nil {
+					return &[]VoteCount{}, err1
+				}
 			}
 		}
 	}

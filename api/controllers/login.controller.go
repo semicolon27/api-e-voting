@@ -103,5 +103,5 @@ func (server *Server) SignInParticipant(RegNumber, password string) (string, err
 	if err != nil && err == bcrypt.ErrMismatchedHashAndPassword {
 		return "", err
 	}
-	return auth.CreateTokenParticipant(participant.RegNumber)
+	return auth.CreateTokenParticipant(uint32(participant.Id), participant.RegNumber)
 }

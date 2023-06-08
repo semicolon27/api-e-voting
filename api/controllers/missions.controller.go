@@ -9,7 +9,6 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
-	"github.com/semicolon27/api-e-voting/api/auth"
 	"github.com/semicolon27/api-e-voting/api/models"
 	"github.com/semicolon27/api-e-voting/api/responses"
 	"github.com/semicolon27/api-e-voting/api/utils/formaterror"
@@ -32,11 +31,6 @@ func (server *Server) CreateMission(w http.ResponseWriter, r *http.Request) {
 	err = mission.Validate()
 	if err != nil {
 		responses.ERROR(w, http.StatusUnprocessableEntity, err)
-		return
-	}
-	err = auth.TokenParticipantValid(r)
-	if err != nil {
-		responses.ERROR(w, http.StatusUnauthorized, errors.New("Unauthorized"))
 		return
 	}
 
@@ -92,11 +86,6 @@ func (server *Server) UpdateMission(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//CHeck if the auth token is valid and  get the user id from it
-	err = auth.TokenParticipantValid(r)
-	if err != nil {
-		responses.ERROR(w, http.StatusUnauthorized, errors.New("Unauthorized"))
-		return
-	}
 
 	// Check if the mission exist
 	mission := models.Mission{}
@@ -152,11 +141,6 @@ func (server *Server) DeleteMission(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Is this user authenticated?
-	err = auth.TokenParticipantValid(r)
-	if err != nil {
-		responses.ERROR(w, http.StatusUnauthorized, errors.New("Unauthorized"))
-		return
-	}
 
 	// Check if the mission exist
 	mission := models.Mission{}

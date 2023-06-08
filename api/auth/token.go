@@ -24,10 +24,11 @@ func CreateTokenAdmin(user_id uint32) (string, error) {
 	return token.SignedString([]byte(os.Getenv("API_SECRET")))
 }
 
-func CreateTokenParticipant(reg_number string) (string, error) {
+func CreateTokenParticipant(user_id uint32, reg_number string) (string, error) {
 	claims := jwt.MapClaims{}
 	claims["authorized"] = true
 	claims["reg_number"] = reg_number
+	claims["user_id"] = user_id
 	claims["type"] = "p"
 	claims["exp"] = time.Now().Add(time.Hour * 1).Unix() //Token expires after 1 hour
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -87,30 +88,7 @@ func ExtractToken(r *http.Request) string {
 	return ""
 }
 
-func ExtractTokenParticipantID(r *http.Request) (string, error) {
-
-	tokenString := ExtractToken(r)
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
-		}
-		return []byte(os.Getenv("API_SECRET")), nil
-	})
-	if err != nil {
-		return "", err
-	}
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if ok && token.Valid {
-		uid := fmt.Sprintf("%.0f", claims["reg_number"])
-		if err != nil {
-			return "", err
-		}
-		return uid, nil
-	}
-	return "", nil
-}
-
-func ExtractTokenAdminID(r *http.Request) (uint32, error) {
+func ExtractTokenID(r *http.Request) (uint32, error) {
 
 	tokenString := ExtractToken(r)
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
