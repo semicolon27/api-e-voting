@@ -3,6 +3,7 @@ package controllers
 import (
 	"encoding/json"
 	"io/ioutil"
+	"log"
 	"net/http"
 
 	"github.com/semicolon27/api-e-voting/api/auth"
@@ -12,7 +13,8 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func (server *Server) Login(w http.ResponseWriter, r *http.Request) {
+// ADMIN SECTION
+func (server *Server) LoginAdmin(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		responses.ERROR(w, http.StatusUnprocessableEntity, err)
@@ -31,7 +33,7 @@ func (server *Server) Login(w http.ResponseWriter, r *http.Request) {
 		responses.ERROR(w, http.StatusUnprocessableEntity, err)
 		return
 	}
-	token, err := server.SignIn(admin.Username, admin.Password)
+	token, err := server.SignInAdmin(admin.Username, admin.Password)
 	if err != nil {
 		formattedError := formaterror.FormatError(err.Error())
 		responses.ERROR(w, http.StatusUnprocessableEntity, formattedError)
@@ -40,7 +42,7 @@ func (server *Server) Login(w http.ResponseWriter, r *http.Request) {
 	responses.JSON(w, http.StatusOK, token)
 }
 
-func (server *Server) SignIn(username, password string) (string, error) {
+func (server *Server) SignInAdmin(username, password string) (string, error) {
 
 	var err error
 
@@ -54,5 +56,52 @@ func (server *Server) SignIn(username, password string) (string, error) {
 	if err != nil && err == bcrypt.ErrMismatchedHashAndPassword {
 		return "", err
 	}
-	return auth.CreateToken(uint32(admin.Id))
+	return auth.CreateTokenAdmin(uint32(admin.Id))
+}
+
+// PARTICIPANT SECTION
+func (server *Server) LoginParticipant(w http.ResponseWriter, r *http.Request) {
+	log.Print("Login participant")
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		responses.ERROR(w, http.StatusUnprocessableEntity, err)
+		return
+	}
+	participant := models.Participant{}
+	err = json.Unmarshal(body, &participant)
+	if err != nil {
+		responses.ERROR(w, http.StatusUnprocessableEntity, err)
+		return
+	}
+
+	participant.PrepareParticipant()
+	err = participant.ValidateParticipant("login")
+	if err != nil {
+		responses.ERROR(w, http.StatusUnprocessableEntity, err)
+		return
+	}
+	token, err := server.SignInParticipant(participant.RegNumber, participant.Password)
+	if err != nil {
+		formattedError := formaterror.FormatError(err.Error())
+		responses.ERROR(w, http.StatusUnprocessableEntity, formattedError)
+		return
+	}
+	responses.JSON(w, http.StatusOK, token)
+}
+
+func (server *Server) SignInParticipant(RegNumber, password string) (string, error) {
+
+	var err error
+
+	participant := models.Participant{}
+
+	err = server.DB.Debug().Model(models.Participant{}).Where("reg_number = ?", RegNumber).Take(&participant).Error
+	if err != nil {
+		return "", err
+	}
+	err = models.VerifyPasswordParticipant(participant.Password, password)
+	if err != nil && err == bcrypt.ErrMismatchedHashAndPassword {
+		return "", err
+	}
+	return auth.CreateTokenParticipant(participant.RegNumber)
 }

@@ -61,6 +61,18 @@ func (server *Server) GetVotes(w http.ResponseWriter, r *http.Request) {
 	responses.JSON(w, http.StatusOK, votes)
 }
 
+func (server *Server) GetCountVotes(w http.ResponseWriter, r *http.Request) {
+
+	vote := models.VoteCount{}
+
+	votes, err := vote.GetVoteCountByParticipantID(server.DB)
+	if err != nil {
+		responses.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+	responses.JSON(w, http.StatusOK, votes)
+}
+
 func (server *Server) GetVote(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)

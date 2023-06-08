@@ -16,6 +16,12 @@ type Vote struct {
 	UpdatedAt     time.Time   `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
 }
 
+type VoteCount struct {
+	CandidateId int       `sql:"type:int REFERENCES candidates(id)" json:"candidateid"`
+	Candidate   Candidate `json:"candidate"`
+	Count       string    `json:"count"`
+}
+
 func (p *Vote) Prepare() {
 	p.Id = 0
 	p.Candidate = Candidate{}
@@ -31,7 +37,7 @@ func (p *Vote) SaveVote(db *gorm.DB) (*Vote, error) {
 		return &Vote{}, err
 	}
 	if p.Id != 0 {
-		err = db.Debug().Model(&Candidate{}).Where("id = ?", p.CandidateId).Take(&p.Candidate).Error
+		err = db.Debug().Model(&Vote{}).Where("id = ?", p.Id).Take(&p.Candidate).Error
 		if err != nil {
 			return &Vote{}, err
 		}
@@ -40,23 +46,26 @@ func (p *Vote) SaveVote(db *gorm.DB) (*Vote, error) {
 }
 
 // TODO: nanti bikin hitung vote
+func (p *VoteCount) GetVoteCountByParticipantID(db *gorm.DB) ([]VoteCount, error) {
+	var voteCount []VoteCount
+	err := db.Debug().Model(&Vote{}).
+		Select("participant_id, COUNT(*) as asdasd").Take(&p.Candidate).
+		Group("participant_id").
+		Scan(&voteCount).Error
+	if err != nil {
+		return nil, err
+	}
+	return voteCount, nil
+}
 
 func (p *Vote) FindAllVotes(db *gorm.DB) (*[]Vote, error) {
 	var err error
-	missions := []Vote{}
-	err = db.Debug().Model(&Vote{}).Limit(100).Find(&missions).Error
+	vote := []Vote{}
+	err = db.Debug().Model(&Vote{}).Limit(100).Find(&vote).Error
 	if err != nil {
 		return &[]Vote{}, err
 	}
-	if len(missions) > 0 {
-		for i, _ := range missions {
-			err := db.Debug().Model(&Candidate{}).Where("id = ?", missions[i].CandidateId).Take(&missions[i].Candidate).Error
-			if err != nil {
-				return &[]Vote{}, err
-			}
-		}
-	}
-	return &missions, nil
+	return &vote, nil
 }
 
 func (p *Vote) FindVoteByID(db *gorm.DB, pid uint64) (*Vote, error) {
