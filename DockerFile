@@ -1,10 +1,15 @@
 FROM golang:1.16-alpine
 
-WORKDIR /app/ci-data-be-go-app
+WORKDIR /app
 
-COPY . .
-RUN go mod tidy
+COPY go.mod go.sum ./
 
-RUN go build -o binary /app/ci-data-be-go-app
+RUN go mod download
 
-ENTRYPOINT ["/app/ci-data-be-go-app/binary"]
+COPY *.go ./
+
+RUN go build -o /app
+
+EXPOSE 8080
+
+ENTRYPOINT ["/app"]
