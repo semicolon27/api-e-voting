@@ -94,7 +94,7 @@ func (server *Server) UpdateAdmin(w http.ResponseWriter, r *http.Request) {
 		responses.ERROR(w, http.StatusUnprocessableEntity, err)
 		return
 	}
-	tokenID, err := auth.ExtractTokenID(r)
+	tokenID, err := auth.ExtractTokenAdminID(r)
 	if err != nil {
 		responses.ERROR(w, http.StatusUnauthorized, errors.New("Unauthorized"))
 		return
@@ -129,7 +129,7 @@ func (server *Server) DeleteAdmin(w http.ResponseWriter, r *http.Request) {
 		responses.ERROR(w, http.StatusBadRequest, err)
 		return
 	}
-	tokenID, err := auth.ExtractTokenID(r)
+	tokenID, err := auth.ExtractTokenAdminID(r)
 	if err != nil {
 		responses.ERROR(w, http.StatusUnauthorized, errors.New("Unauthorized"))
 		return

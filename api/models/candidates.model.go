@@ -14,6 +14,8 @@ type Candidate struct {
 	Option    int       `gorm:"type:int;not null;unique;" json:"option"`
 	Name      string    `gorm:"size:100;not null;" json:"name"`
 	Image     string    `gorm:"type:text;not null;" json:"image"`
+	Vision    []Vision  `json:"vision"`
+	Mission   []Mission `json:"mission"`
 	CreatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
 }
@@ -57,6 +59,18 @@ func (p *Candidate) FindAllCandidates(db *gorm.DB) (*[]Candidate, error) {
 	if err != nil {
 		return &[]Candidate{}, err
 	}
+	if len(candidates) > 0 {
+		for i, _ := range candidates {
+			err := db.Debug().Model(&Mission{}).Where("candidate_id = ?", candidates[i].Id).Find(&candidates[i].Mission).Error
+			if err != nil {
+				return &[]Candidate{}, err
+			}
+			err1 := db.Debug().Model(&Vision{}).Where("candidate_id = ?", candidates[i].Id).Find(&candidates[i].Vision).Error
+			if err1 != nil {
+				return &[]Candidate{}, err1
+			}
+		}
+	}
 	return &candidates, nil
 }
 
@@ -65,6 +79,16 @@ func (p *Candidate) FindCandidateByID(db *gorm.DB, pid uint64) (*Candidate, erro
 	err = db.Debug().Model(&Candidate{}).Where("id = ?", pid).Take(&p).Error
 	if err != nil {
 		return &Candidate{}, err
+	}
+	if p.Id != 0 {
+		err := db.Debug().Model(&Mission{}).Where("candidate_id = ?", p.Id).Find(&p.Mission).Error
+		if err != nil {
+			return &Candidate{}, err
+		}
+		err1 := db.Debug().Model(&Vision{}).Where("candidate_id = ?", p.Id).Find(&p.Vision).Error
+		if err1 != nil {
+			return &Candidate{}, err1
+		}
 	}
 	return p, nil
 }
@@ -75,6 +99,16 @@ func (p *Candidate) UpdateCandidate(db *gorm.DB) (*Candidate, error) {
 	err = db.Debug().Model(&Candidate{}).Where("id = ?", p.Id).Updates(Candidate{Option: p.Option, Name: p.Name, Image: p.Image, UpdatedAt: time.Now()}).Error
 	if err != nil {
 		return &Candidate{}, err
+	}
+	if p.Id != 0 {
+		err := db.Debug().Model(&Mission{}).Where("candidate_id = ?", p.Id).Find(&p.Mission).Error
+		if err != nil {
+			return &Candidate{}, err
+		}
+		err1 := db.Debug().Model(&Vision{}).Where("candidate_id = ?", p.Id).Find(&p.Vision).Error
+		if err1 != nil {
+			return &Candidate{}, err1
+		}
 	}
 	return p, nil
 }

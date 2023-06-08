@@ -46,16 +46,24 @@ func (p *Vote) SaveVote(db *gorm.DB) (*Vote, error) {
 }
 
 // TODO: nanti bikin hitung vote
-func (p *VoteCount) GetVoteCountByParticipantID(db *gorm.DB) ([]VoteCount, error) {
+func (p *VoteCount) GetVoteCountByParticipantID(db *gorm.DB) (*[]VoteCount, error) {
 	var voteCount []VoteCount
 	err := db.Debug().Model(&Vote{}).
-		Select("participant_id, COUNT(*) as asdasd").Take(&p.Candidate).
-		Group("participant_id").
+		Select("candidate_id, COUNT(*) as count").
+		Group("candidate_id").
 		Scan(&voteCount).Error
 	if err != nil {
 		return nil, err
 	}
-	return voteCount, nil
+	if len(voteCount) > 0 {
+		for i, _ := range voteCount {
+			err := db.Debug().Model(&Candidate{}).Where("id = ?", voteCount[i].CandidateId).Take(&voteCount[i].Candidate).Error
+			if err != nil {
+				return &[]VoteCount{}, err
+			}
+		}
+	}
+	return &voteCount, nil
 }
 
 func (p *Vote) FindAllVotes(db *gorm.DB) (*[]Vote, error) {

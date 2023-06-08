@@ -33,7 +33,7 @@ func (server *Server) CreateVote(w http.ResponseWriter, r *http.Request) {
 		responses.ERROR(w, http.StatusUnprocessableEntity, err)
 		return
 	}
-	err = auth.TokenValid(r)
+	err = auth.TokenParticipantValid(r)
 	if err != nil {
 		responses.ERROR(w, http.StatusUnauthorized, errors.New("Unauthorized"))
 		return

@@ -34,7 +34,7 @@ func (server *Server) CreateVision(w http.ResponseWriter, r *http.Request) {
 		responses.ERROR(w, http.StatusUnprocessableEntity, err)
 		return
 	}
-	err = auth.TokenValid(r)
+	err = auth.TokenParticipantValid(r)
 	if err != nil {
 		responses.ERROR(w, http.StatusUnauthorized, errors.New("Unauthorized"))
 		return
@@ -92,7 +92,7 @@ func (server *Server) UpdateVision(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//CHeck if the auth token is valid and  get the user id from it
-	err = auth.TokenValid(r)
+	err = auth.TokenParticipantValid(r)
 	if err != nil {
 		responses.ERROR(w, http.StatusUnauthorized, errors.New("Unauthorized"))
 		return
@@ -152,7 +152,7 @@ func (server *Server) DeleteVision(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Is this user authenticated?
-	err = auth.TokenValid(r)
+	err = auth.TokenParticipantValid(r)
 	if err != nil {
 		responses.ERROR(w, http.StatusUnauthorized, errors.New("Unauthorized"))
 		return

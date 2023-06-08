@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/semicolon27/api-e-voting/api/auth"
@@ -61,13 +60,10 @@ func (server *Server) GetParticipants(w http.ResponseWriter, r *http.Request) {
 func (server *Server) GetParticipant(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
-	uid, err := strconv.ParseUint(vars["id"], 10, 32)
-	if err != nil {
-		responses.ERROR(w, http.StatusBadRequest, err)
-		return
-	}
+	uid := fmt.Sprintf(vars["id"])
 	participant := models.Participant{}
-	participantGotten, err := participant.FindParticipantByID(server.DB, uint32(uid))
+
+	participantGotten, err := participant.FindParticipantByID(server.DB, uid)
 	if err != nil {
 		responses.ERROR(w, http.StatusBadRequest, err)
 		return
@@ -78,11 +74,7 @@ func (server *Server) GetParticipant(w http.ResponseWriter, r *http.Request) {
 func (server *Server) UpdateParticipant(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
-	uid, err := strconv.ParseUint(vars["id"], 10, 32)
-	if err != nil {
-		responses.ERROR(w, http.StatusBadRequest, err)
-		return
-	}
+	uid := fmt.Sprintf(vars["id"])
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		responses.ERROR(w, http.StatusUnprocessableEntity, err)
@@ -94,13 +86,9 @@ func (server *Server) UpdateParticipant(w http.ResponseWriter, r *http.Request) 
 		responses.ERROR(w, http.StatusUnprocessableEntity, err)
 		return
 	}
-	tokenID, err := auth.ExtractTokenID(r)
+	err = auth.TokenAdminValid(r)
 	if err != nil {
 		responses.ERROR(w, http.StatusUnauthorized, errors.New("Unauthorized"))
-		return
-	}
-	if tokenID != uint32(uid) {
-		responses.ERROR(w, http.StatusUnauthorized, errors.New(http.StatusText(http.StatusUnauthorized)))
 		return
 	}
 	participant.PrepareParticipant()
@@ -109,7 +97,7 @@ func (server *Server) UpdateParticipant(w http.ResponseWriter, r *http.Request) 
 		responses.ERROR(w, http.StatusUnprocessableEntity, err)
 		return
 	}
-	updatedParticipant, err := participant.UpdateParticipant(server.DB, uint32(uid))
+	updatedParticipant, err := participant.UpdateParticipant(server.DB, uid)
 	if err != nil {
 		formattedError := formaterror.FormatError(err.Error())
 		responses.ERROR(w, http.StatusInternalServerError, formattedError)
@@ -124,21 +112,13 @@ func (server *Server) DeleteParticipant(w http.ResponseWriter, r *http.Request) 
 
 	participant := models.Participant{}
 
-	uid, err := strconv.ParseUint(vars["id"], 10, 32)
+	uid := fmt.Sprintf(vars["id"])
+	err := auth.TokenAdminValid(r)
 	if err != nil {
-		responses.ERROR(w, http.StatusBadRequest, err)
-		return
-	}
-	tokenID, err := auth.ExtractTokenID(r)
-	if err != nil {
-		responses.ERROR(w, http.StatusUnauthorized, errors.New("Unauthorized"))
-		return
-	}
-	if tokenID != 0 && tokenID != uint32(uid) {
 		responses.ERROR(w, http.StatusUnauthorized, errors.New(http.StatusText(http.StatusUnauthorized)))
 		return
 	}
-	_, err = participant.DeleteParticipant(server.DB, uint32(uid))
+	_, err = participant.DeleteParticipant(server.DB, uid)
 	if err != nil {
 		responses.ERROR(w, http.StatusInternalServerError, err)
 		return

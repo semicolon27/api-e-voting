@@ -47,14 +47,14 @@ func TokenAdminValid(r *http.Request) error {
 	}
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		if claims["type"] != "a" {
-			return errors.New("unauthorized")
+			return errors.New("Token unauthorized")
 		}
 		Pretty(claims)
 	}
 	return nil
 }
 
-func TokenValid(r *http.Request) error {
+func TokenParticipantValid(r *http.Request) error {
 	tokenString := ExtractToken(r)
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -66,8 +66,8 @@ func TokenValid(r *http.Request) error {
 		return err
 	}
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		if claims["type"] != "a" {
-			return errors.New("unauthorized")
+		if claims["type"] != "p" {
+			return errors.New("Token unauthorized")
 		}
 		Pretty(claims)
 	}
@@ -87,7 +87,30 @@ func ExtractToken(r *http.Request) string {
 	return ""
 }
 
-func ExtractTokenID(r *http.Request) (uint32, error) {
+func ExtractTokenParticipantID(r *http.Request) (string, error) {
+
+	tokenString := ExtractToken(r)
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(os.Getenv("API_SECRET")), nil
+	})
+	if err != nil {
+		return "", err
+	}
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if ok && token.Valid {
+		uid := fmt.Sprintf("%.0f", claims["reg_number"])
+		if err != nil {
+			return "", err
+		}
+		return uid, nil
+	}
+	return "", nil
+}
+
+func ExtractTokenAdminID(r *http.Request) (uint32, error) {
 
 	tokenString := ExtractToken(r)
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
