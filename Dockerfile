@@ -2,14 +2,10 @@ FROM golang:1.20.5-alpine
 
 WORKDIR /app
 
-COPY go.mod go.sum ./
+COPY . .
 
-RUN go mod download
-
-COPY *.go ./
+RUN go mod tidy
 
 RUN go build -o ./app
-
-EXPOSE 8080
 
 ENTRYPOINT ["./app"]
