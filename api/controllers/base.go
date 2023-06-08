@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
@@ -40,5 +41,39 @@ func (server *Server) Initialize(Dbdriver, DbUser, DbPassword, DbPort, DbHost, D
 
 func (server *Server) Run(addr string) {
 	fmt.Println("Listening to port 8080")
-	log.Fatal(http.ListenAndServe(addr, server.Router))
+	log.Fatal(http.ListenAndServe(addr, server.logRequest(server.Router)))
+}
+
+// Middleware untuk logging request
+func (server *Server) logRequest(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+		// Menyiapkan recorder response untuk mendapatkan status response
+		// recorder := httptest.NewRecorder()
+
+		// // Memanggil handler berikutnya menggunakan recorder response
+		// next.ServeHTTP(recorder, r)
+
+		// // Mengambil status response dari recorder
+		// status := recorder.Result().StatusCode
+
+		// // Mengirim response yang telah direkam ke response writer asli
+		// for k, v := range recorder.Header() {
+		// 	w.Header()[k] = v
+		// }
+		// w.WriteHeader(status)
+		// recorder.Body.WriteTo(w)
+
+		// Memanggil handler berikutnya
+		next.ServeHTTP(w, r)
+
+		// Logging setelah handler selesai dipanggil
+		log.Printf(
+			"[%s] %s Duration: %s",
+			r.Method,
+			r.URL.Path,
+			// strconv.Itoa(status),
+			time.Since(start),
+		)
+	})
 }

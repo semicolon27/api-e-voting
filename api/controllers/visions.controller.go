@@ -9,7 +9,6 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
-	"github.com/semicolon27/api-e-voting/api/auth"
 	"github.com/semicolon27/api-e-voting/api/models"
 	"github.com/semicolon27/api-e-voting/api/responses"
 	"github.com/semicolon27/api-e-voting/api/utils/formaterror"
@@ -32,11 +31,6 @@ func (server *Server) CreateVision(w http.ResponseWriter, r *http.Request) {
 	err = vision.Validate()
 	if err != nil {
 		responses.ERROR(w, http.StatusUnprocessableEntity, err)
-		return
-	}
-	err = auth.TokenValid(r)
-	if err != nil {
-		responses.ERROR(w, http.StatusUnauthorized, errors.New("Unauthorized"))
 		return
 	}
 
@@ -92,11 +86,6 @@ func (server *Server) UpdateVision(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//CHeck if the auth token is valid and  get the user id from it
-	err = auth.TokenValid(r)
-	if err != nil {
-		responses.ERROR(w, http.StatusUnauthorized, errors.New("Unauthorized"))
-		return
-	}
 
 	// Check if the vision exist
 	vision := models.Vision{}
@@ -152,11 +141,6 @@ func (server *Server) DeleteVision(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Is this user authenticated?
-	err = auth.TokenValid(r)
-	if err != nil {
-		responses.ERROR(w, http.StatusUnauthorized, errors.New("Unauthorized"))
-		return
-	}
 
 	// Check if the vision exist
 	vision := models.Vision{}

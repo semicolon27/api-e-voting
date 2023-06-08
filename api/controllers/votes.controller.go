@@ -33,7 +33,8 @@ func (server *Server) CreateVote(w http.ResponseWriter, r *http.Request) {
 		responses.ERROR(w, http.StatusUnprocessableEntity, err)
 		return
 	}
-	err = auth.TokenValid(r)
+	tokenid, err := auth.ExtractTokenID(r)
+	vote.ParticipantId = int(tokenid)
 	if err != nil {
 		responses.ERROR(w, http.StatusUnauthorized, errors.New("Unauthorized"))
 		return
@@ -54,6 +55,18 @@ func (server *Server) GetVotes(w http.ResponseWriter, r *http.Request) {
 	vote := models.Vote{}
 
 	votes, err := vote.FindAllVotes(server.DB)
+	if err != nil {
+		responses.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+	responses.JSON(w, http.StatusOK, votes)
+}
+
+func (server *Server) GetCountVotes(w http.ResponseWriter, r *http.Request) {
+
+	vote := models.VoteCount{}
+
+	votes, err := vote.GetVoteCountByParticipantID(server.DB)
 	if err != nil {
 		responses.ERROR(w, http.StatusInternalServerError, err)
 		return

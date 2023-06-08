@@ -12,7 +12,6 @@ import (
 type Mission struct {
 	Id          int       `gorm:"primary_key;auto_increment" json:"id"`
 	CandidateId int       `sql:"type:int REFERENCES candidates(id)" json:"candidateid"`
-	Candidate   Candidate `json:"candidate"`
 	Mission     string    `gorm:"size:255;not null" json:"mission"`
 	CreatedAt   time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt   time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
@@ -20,7 +19,6 @@ type Mission struct {
 
 func (p *Mission) Prepare() {
 	p.Id = 0
-	p.Candidate = Candidate{}
 	p.Mission = html.EscapeString(strings.TrimSpace(p.Mission))
 	p.CreatedAt = time.Now()
 	p.UpdatedAt = time.Now()
@@ -43,12 +41,6 @@ func (p *Mission) SaveMission(db *gorm.DB) (*Mission, error) {
 	if err != nil {
 		return &Mission{}, err
 	}
-	if p.Id != 0 {
-		err = db.Debug().Model(&Candidate{}).Where("id = ?", p.CandidateId).Take(&p.Candidate).Error
-		if err != nil {
-			return &Mission{}, err
-		}
-	}
 	return p, nil
 }
 
@@ -59,14 +51,6 @@ func (p *Mission) FindAllMissions(db *gorm.DB) (*[]Mission, error) {
 	if err != nil {
 		return &[]Mission{}, err
 	}
-	if len(missions) > 0 {
-		for i, _ := range missions {
-			err := db.Debug().Model(&Candidate{}).Where("id = ?", missions[i].CandidateId).Take(&missions[i].Candidate).Error
-			if err != nil {
-				return &[]Mission{}, err
-			}
-		}
-	}
 	return &missions, nil
 }
 
@@ -75,12 +59,6 @@ func (p *Mission) FindMissionByID(db *gorm.DB, pid uint64) (*Mission, error) {
 	err = db.Debug().Model(&Mission{}).Where("id = ?", pid).Take(&p).Error
 	if err != nil {
 		return &Mission{}, err
-	}
-	if p.Id != 0 {
-		err = db.Debug().Model(&Candidate{}).Where("id = ?", p.CandidateId).Take(&p.Candidate).Error
-		if err != nil {
-			return &Mission{}, err
-		}
 	}
 	return p, nil
 }
@@ -91,12 +69,6 @@ func (p *Mission) UpdateMission(db *gorm.DB) (*Mission, error) {
 	err = db.Debug().Model(&Mission{}).Where("id = ?", p.Id).Updates(Mission{Mission: p.Mission, UpdatedAt: time.Now()}).Error
 	if err != nil {
 		return &Mission{}, err
-	}
-	if p.Id != 0 {
-		err = db.Debug().Model(&Candidate{}).Where("id = ?", p.CandidateId).Take(&p.Candidate).Error
-		if err != nil {
-			return &Mission{}, err
-		}
 	}
 	return p, nil
 }

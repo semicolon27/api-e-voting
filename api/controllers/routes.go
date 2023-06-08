@@ -4,53 +4,43 @@ import "github.com/semicolon27/api-e-voting/api/middlewares"
 
 func (s *Server) initializeRoutes() {
 
-	// // Home Route
-	// s.Router.HandleFunc("/", middlewares.SetMiddlewareJSON(s.Home)).Methods("GET")
-
 	// Login Route
-	s.Router.HandleFunc("/login", middlewares.SetMiddlewareJSON(s.Login)).Methods("POST")
-	s.Router.HandleFunc("/participant/login", middlewares.SetMiddlewareJSON(s.GetCandidate)).Methods("POST")
+	s.Router.HandleFunc("/admin/login", middlewares.SetMiddlewareJSON(s.LoginAdmin, "LoginAdmin")).Methods("POST")
+	s.Router.HandleFunc("/participant/login", middlewares.SetMiddlewareJSON(s.LoginParticipant, "LoginParticipant")).Methods("POST")
 
 	//Users routes
-	s.Router.HandleFunc("/candidates", middlewares.SetMiddlewareJSON(s.GetCandidates)).Methods("GET")
-	s.Router.HandleFunc("/candidate/{id}", middlewares.SetMiddlewareJSON(s.GetCandidate)).Methods("GET")
-	s.Router.HandleFunc("/candidate", middlewares.SetMiddlewareAuthentication(s.CreateCandidate)).Methods("POST")
-	s.Router.HandleFunc("/candidate/{id}", middlewares.SetMiddlewareAuthentication(s.UpdateCandidate)).Methods("PUT")
-	s.Router.HandleFunc("/candidate/{id}", middlewares.SetMiddlewareAuthentication(s.DeleteCandidate)).Methods("DELETE")
+	s.Router.HandleFunc("/candidates", middlewares.SetMiddlewareJSON(s.GetCandidates, "GetCandidates")).Methods("GET")
+	s.Router.HandleFunc("/candidate/{id}", middlewares.SetMiddlewareJSON(s.GetCandidate, "GetCandidate")).Methods("GET")
+	s.Router.HandleFunc("/candidate", middlewares.SetMiddlewareAdminAuthentication(s.CreateCandidate, "CreateCandidate")).Methods("POST")
+	s.Router.HandleFunc("/candidate/{id}", middlewares.SetMiddlewareAdminAuthentication(s.UpdateCandidate, "UpdateCandidate")).Methods("PUT")
+	s.Router.HandleFunc("/candidate/{id}", middlewares.SetMiddlewareAdminAuthentication(s.DeleteCandidate, "DeleteCandidate")).Methods("DELETE")
 
 	//Users routes
-	s.Router.HandleFunc("/classes", middlewares.SetMiddlewareJSON(s.GetClasses)).Methods("GET")
-	s.Router.HandleFunc("/class/{id}", middlewares.SetMiddlewareJSON(s.GetClass)).Methods("GET")
-	s.Router.HandleFunc("/class", middlewares.SetMiddlewareAuthentication(s.CreateClass)).Methods("POST")
-	s.Router.HandleFunc("/class/{id}", middlewares.SetMiddlewareAuthentication(s.UpdateClass)).Methods("PUT")
-	s.Router.HandleFunc("/class/{id}", middlewares.SetMiddlewareAuthentication(s.DeleteClass)).Methods("DELETE")
+	s.Router.HandleFunc("/missions", middlewares.SetMiddlewareJSON(s.GetMissions, "GetMissions")).Methods("GET")
+	s.Router.HandleFunc("/mission/{id}", middlewares.SetMiddlewareJSON(s.GetMission, "GetMission")).Methods("GET")
+	s.Router.HandleFunc("/mission", middlewares.SetMiddlewareAdminAuthentication(s.CreateMission, "CreateMission")).Methods("POST")
+	s.Router.HandleFunc("/mission/{id}", middlewares.SetMiddlewareAdminAuthentication(s.UpdateMission, "UpdateMission")).Methods("PUT")
+	s.Router.HandleFunc("/mission/{id}", middlewares.SetMiddlewareAdminAuthentication(s.DeleteMission, "DeleteMission")).Methods("DELETE")
 
 	//Users routes
-	s.Router.HandleFunc("/missions", middlewares.SetMiddlewareJSON(s.GetMissions)).Methods("GET")
-	s.Router.HandleFunc("/mission/{id}", middlewares.SetMiddlewareJSON(s.GetMission)).Methods("GET")
-	s.Router.HandleFunc("/mission", middlewares.SetMiddlewareAuthentication(s.CreateMission)).Methods("POST")
-	s.Router.HandleFunc("/mission/{id}", middlewares.SetMiddlewareAuthentication(s.UpdateMission)).Methods("PUT")
-	s.Router.HandleFunc("/mission/{id}", middlewares.SetMiddlewareAuthentication(s.DeleteMission)).Methods("DELETE")
+	s.Router.HandleFunc("/participants", middlewares.SetMiddlewareJSON(s.GetParticipants, "GetParticipants")).Methods("GET")
+	s.Router.HandleFunc("/participant/{id}", middlewares.SetMiddlewareJSON(s.GetParticipant, "GetParticipant")).Methods("GET")
+	s.Router.HandleFunc("/participant", middlewares.SetMiddlewareAdminAuthentication(s.CreateParticipant, "CreateParticipant")).Methods("POST")
+	s.Router.HandleFunc("/participant/{id}", middlewares.SetMiddlewareAdminAuthentication(s.UpdateParticipant, "UpdateParticipant")).Methods("PUT")
+	s.Router.HandleFunc("/participant/{id}", middlewares.SetMiddlewareAdminAuthentication(s.DeleteParticipant, "DeleteParticipant")).Methods("DELETE")
 
 	//Users routes
-	s.Router.HandleFunc("/participants", middlewares.SetMiddlewareJSON(s.GetParticipants)).Methods("GET")
-	s.Router.HandleFunc("/participant/{id}", middlewares.SetMiddlewareJSON(s.GetParticipant)).Methods("GET")
-	s.Router.HandleFunc("/participant", middlewares.SetMiddlewareAuthentication(s.CreateParticipant)).Methods("POST")
-	s.Router.HandleFunc("/participant/{id}", middlewares.SetMiddlewareAuthentication(s.UpdateParticipant)).Methods("PUT")
-	s.Router.HandleFunc("/participant/{id}", middlewares.SetMiddlewareAuthentication(s.DeleteParticipant)).Methods("DELETE")
+	s.Router.HandleFunc("/visions", middlewares.SetMiddlewareJSON(s.GetVisions, "GetVisions")).Methods("GET")
+	s.Router.HandleFunc("/vision/{id}", middlewares.SetMiddlewareJSON(s.GetVision, "GetVision")).Methods("GET")
+	s.Router.HandleFunc("/vision", middlewares.SetMiddlewareAdminAuthentication(s.CreateVision, "CreateVision")).Methods("POST")
+	s.Router.HandleFunc("/vision/{id}", middlewares.SetMiddlewareAdminAuthentication(s.UpdateVision, "UpdateVision")).Methods("PUT")
+	s.Router.HandleFunc("/vision/{id}", middlewares.SetMiddlewareAdminAuthentication(s.DeleteVision, "DeleteVision")).Methods("DELETE")
 
 	//Users routes
-	s.Router.HandleFunc("/visions", middlewares.SetMiddlewareJSON(s.GetVisions)).Methods("GET")
-	s.Router.HandleFunc("/vision/{id}", middlewares.SetMiddlewareJSON(s.GetVision)).Methods("GET")
-	s.Router.HandleFunc("/vision", middlewares.SetMiddlewareAuthentication(s.CreateVision)).Methods("POST")
-	s.Router.HandleFunc("/vision/{id}", middlewares.SetMiddlewareAuthentication(s.UpdateVision)).Methods("PUT")
-	s.Router.HandleFunc("/vision/{id}", middlewares.SetMiddlewareAuthentication(s.DeleteVision)).Methods("DELETE")
-
-	//Users routes
-	s.Router.HandleFunc("/votes", middlewares.SetMiddlewareJSON(s.GetVotes)).Methods("GET")
-	s.Router.HandleFunc("/vote/{id}", middlewares.SetMiddlewareJSON(s.GetVote)).Methods("GET")
-	s.Router.HandleFunc("/vote", middlewares.SetMiddlewareAuthentication(s.CreateVote)).Methods("POST")
-	// s.Router.HandleFunc("/vote/count", middlewares.SetMiddlewareAuthentication(s.GetVoteCount)).Methods("GET")
+	s.Router.HandleFunc("/votes", middlewares.SetMiddlewareJSON(s.GetVotes, "GetVotes")).Methods("GET")
+	s.Router.HandleFunc("/votes/count", middlewares.SetMiddlewareJSON(s.GetCountVotes, "GetCountVotes")).Methods("GET")
+	s.Router.HandleFunc("/vote/{id}", middlewares.SetMiddlewareJSON(s.GetVote, "GetVote")).Methods("GET")
+	s.Router.HandleFunc("/vote", middlewares.SetMiddlewareAuthentication(s.CreateVote, "CreateVote")).Methods("POST")
 
 	// //Users routes
 	// s.Router.HandleFunc("/users", middlewares.SetMiddlewareJSON(s.CreateUser)).Methods("POST")

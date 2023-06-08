@@ -31,15 +31,6 @@ var candidates = []models.Candidate{
 	},
 }
 
-var classes = []models.Class{
-	models.Class{
-		Name: "Ilkom O 4",
-	},
-	models.Class{
-		Name: "Farmasi O 4",
-	},
-}
-
 var missions = []models.Mission{
 	models.Mission{
 		CandidateId: 1,
@@ -64,31 +55,26 @@ var participants = []models.Participant{
 		RegNumber: "0001",
 		Name:      "participant1",
 		Password:  "participant1",
-		ClassId:   1,
 	},
 	models.Participant{
 		RegNumber: "0002",
 		Name:      "participant2",
 		Password:  "participant2",
-		ClassId:   1,
 	},
 	models.Participant{
 		RegNumber: "0003",
 		Name:      "participant3",
 		Password:  "participant3",
-		ClassId:   1,
 	},
 	models.Participant{
 		RegNumber: "0004",
 		Name:      "participant4",
 		Password:  "participant4",
-		ClassId:   1,
 	},
 	models.Participant{
 		RegNumber: "0005",
 		Name:      "participant5",
 		Password:  "participant5",
-		ClassId:   1,
 	},
 }
 
@@ -139,7 +125,6 @@ func Load(db *gorm.DB) {
 	err := db.Debug().DropTableIfExists(
 		&models.Admin{},
 		&models.Candidate{},
-		&models.Class{},
 		&models.Mission{},
 		&models.Participant{},
 		&models.Vision{},
@@ -151,7 +136,6 @@ func Load(db *gorm.DB) {
 	err = db.Debug().AutoMigrate(
 		&models.Admin{},
 		&models.Candidate{},
-		&models.Class{},
 		&models.Mission{},
 		&models.Participant{},
 		&models.Vision{},
@@ -179,13 +163,6 @@ func Load(db *gorm.DB) {
 		err = db.Debug().Model(&models.Candidate{}).Create(&candidates[i]).Error
 		if err != nil {
 			log.Fatalf("cannot seed candidates table: %v", err)
-		}
-	}
-
-	for i, _ := range classes {
-		err = db.Debug().Model(&models.Class{}).Create(&classes[i]).Error
-		if err != nil {
-			log.Fatalf("cannot seed classes table: %v", err)
 		}
 	}
 
