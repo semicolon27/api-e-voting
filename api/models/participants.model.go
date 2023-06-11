@@ -80,7 +80,10 @@ func (u *Participant) ValidateParticipant(action string) error {
 
 func (u *Participant) SaveParticipant(db *gorm.DB) (*Participant, error) {
 
-	var err error
+	err := u.BeforeSaveParticipant()
+	if err != nil {
+		log.Fatal(err)
+	}
 	err = db.Debug().Create(&u).Error
 	if err != nil {
 		return &Participant{}, err

@@ -9,6 +9,13 @@ func (s *Server) initializeRoutes() {
 	s.Router.HandleFunc("/participant/login", middlewares.SetMiddlewareJSON(s.LoginParticipant, "LoginParticipant")).Methods("POST")
 
 	//Users routes
+	s.Router.HandleFunc("/admins", middlewares.SetMiddlewareAdminAuthentication(s.GetAdmins, "GetAdmins")).Methods("GET")
+	s.Router.HandleFunc("/admin/{id}", middlewares.SetMiddlewareAdminAuthentication(s.GetAdmin, "GetAdmin")).Methods("GET")
+	s.Router.HandleFunc("/admin", middlewares.SetMiddlewareAdminAuthentication(s.CreateAdmin, "CreateAdmin")).Methods("POST")
+	s.Router.HandleFunc("/admin/{id}", middlewares.SetMiddlewareAdminAuthentication(s.UpdateAdmin, "UpdateAdmin")).Methods("PUT")
+	s.Router.HandleFunc("/admin/{id}", middlewares.SetMiddlewareAdminAuthentication(s.DeleteAdmin, "DeleteAdmin")).Methods("DELETE")
+
+	//Users routes
 	s.Router.HandleFunc("/candidates", middlewares.SetMiddlewareJSON(s.GetCandidates, "GetCandidates")).Methods("GET")
 	s.Router.HandleFunc("/candidate/{id}", middlewares.SetMiddlewareJSON(s.GetCandidate, "GetCandidate")).Methods("GET")
 	s.Router.HandleFunc("/candidate", middlewares.SetMiddlewareAdminAuthentication(s.CreateCandidate, "CreateCandidate")).Methods("POST")

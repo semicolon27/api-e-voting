@@ -8,8 +8,10 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
+	"github.com/rs/cors"
 
 	//mysql database driver
+	"github.com/gorilla/handlers"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/semicolon27/api-e-voting/api/models"
 )
@@ -37,11 +39,19 @@ func (server *Server) Initialize(Dbdriver, DbUser, DbPassword, DbPort, DbHost, D
 	server.Router = mux.NewRouter()
 
 	server.initializeRoutes()
+
 }
 
 func (server *Server) Run(addr string) {
+	c := cors.Default().Handler(server.Router)
+
+	credentials := handlers.AllowCredentials()
+	methods := handlers.AllowedMethods([]string{"POST", "GET", "PUT", "DELETE", "*"})
+	// ttl := handlers.MaxAge(3600)
+	origins := handlers.AllowedOrigins([]string{"*", "localhost:4000"})
+
 	fmt.Println("Listening to port 8080")
-	log.Fatal(http.ListenAndServe(addr, server.logRequest(server.Router)))
+	log.Fatal(http.ListenAndServe(addr, handlers.CORS(credentials, methods, origins)(server.logRequest(c))))
 }
 
 // Middleware untuk logging request
@@ -75,5 +85,24 @@ func (server *Server) logRequest(next http.Handler) http.Handler {
 			// strconv.Itoa(status),
 			time.Since(start),
 		)
+	})
+}
+
+// Middleware to enable CORS
+func enableCORS(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Set CORS headers
+		w.Header().Set("Access-Control-Allow-Origin", "*") // Replace * with your desired origin or set it dynamically based on the request origin
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+		// Handle preflight requests
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		// Call the next handler
+		next.ServeHTTP(w, r)
 	})
 }

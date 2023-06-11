@@ -85,7 +85,10 @@ func (u *Admin) ValidateAdmin(action string) error {
 
 func (u *Admin) SaveAdmin(db *gorm.DB) (*Admin, error) {
 
-	var err error
+	err := u.BeforeSaveAdmin()
+	if err != nil {
+		log.Fatal(err)
+	}
 	err = db.Debug().Create(&u).Error
 	if err != nil {
 		return &Admin{}, err

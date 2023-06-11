@@ -36,13 +36,13 @@ func (server *Server) LoginAdmin(w http.ResponseWriter, r *http.Request) {
 	token, err := server.SignInAdmin(admin.Username, admin.Password)
 	if err != nil {
 		formattedError := formaterror.FormatError(err.Error())
-		responses.ERROR(w, http.StatusUnprocessableEntity, formattedError)
+		responses.ERROR(w, http.StatusUnauthorized, formattedError)
 		return
 	}
 	responses.JSON(w, http.StatusOK, token)
 }
 
-func (server *Server) SignInAdmin(username, password string) (string, error) {
+func (server *Server) SignInAdmin(username string, password string) (string, error) {
 
 	var err error
 
@@ -56,7 +56,7 @@ func (server *Server) SignInAdmin(username, password string) (string, error) {
 	if err != nil && err == bcrypt.ErrMismatchedHashAndPassword {
 		return "", err
 	}
-	return auth.CreateTokenAdmin(uint32(admin.Id))
+	return auth.CreateTokenAdmin(uint32(admin.Id), admin.Name, admin.Username)
 }
 
 // PARTICIPANT SECTION
