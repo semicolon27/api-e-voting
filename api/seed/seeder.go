@@ -10,10 +10,12 @@ import (
 var admins = []models.Admin{
 	models.Admin{
 		Username: "admin1",
+		Name:     "Ahmad",
 		Password: "admin1",
 	},
 	models.Admin{
 		Username: "admin2",
+		Name:     "Asep",
 		Password: "admin2",
 	},
 }
@@ -22,12 +24,14 @@ var candidates = []models.Candidate{
 	models.Candidate{
 		Option: 1,
 		Name:   "Alfi",
-		Image:  "Gambar Alfi",
+		Label:  "Computer Science - 2021",
+		Image:  "https://unpak.ac.id/images/gedung-unpak.jpg",
 	},
 	models.Candidate{
 		Option: 2,
 		Name:   "George W Bush",
-		Image:  "Gambar Bush",
+		Label:  "Chemistry - 2021",
+		Image:  "https://www.unpak.ac.id/images/upk-bnr-2.webp",
 	},
 }
 
