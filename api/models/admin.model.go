@@ -48,15 +48,6 @@ func (u *Admin) PrepareAdmin() {
 
 func (u *Admin) ValidateAdmin(action string) error {
 	switch strings.ToLower(action) {
-	case "update":
-		if u.Name == "" {
-			return errors.New("Required Name")
-		}
-		if u.Username == "" {
-			return errors.New("Required Email")
-		}
-
-		return nil
 	case "login":
 		if u.Password == "" {
 			return errors.New("Required Password")
