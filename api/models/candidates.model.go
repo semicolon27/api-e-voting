@@ -11,7 +11,7 @@ import (
 
 type Candidate struct {
 	Id        int       `gorm:"primary_key;auto_increment" json:"id"`
-	Option    int       `gorm:"type:int;not null;unique;" json:"option"`
+	Option    string    `gorm:"size:100;not null;unique;" json:"option"`
 	Name      string    `gorm:"size:100;not null;" json:"name"`
 	Label     string    `gorm:"size:100;not null;" json:"label"`
 	Image     string    `gorm:"type:text;not null;" json:"image"`

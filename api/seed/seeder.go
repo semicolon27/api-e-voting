@@ -22,13 +22,13 @@ var admins = []models.Admin{
 
 var candidates = []models.Candidate{
 	models.Candidate{
-		Option: 1,
+		Option: "1",
 		Name:   "Alfi",
 		Label:  "Computer Science - 2021",
 		Image:  "https://unpak.ac.id/images/gedung-unpak.jpg",
 	},
 	models.Candidate{
-		Option: 2,
+		Option: "2",
 		Name:   "George W Bush",
 		Label:  "Chemistry - 2021",
 		Image:  "https://www.unpak.ac.id/images/upk-bnr-2.webp",
