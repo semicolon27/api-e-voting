@@ -13,6 +13,7 @@ type Candidate struct {
 	Id        int       `gorm:"primary_key;auto_increment" json:"id"`
 	Option    int       `gorm:"type:int;not null;unique;" json:"option"`
 	Name      string    `gorm:"size:100;not null;" json:"name"`
+	Label     string    `gorm:"size:100;not null;" json:"label"`
 	Image     string    `gorm:"type:text;not null;" json:"image"`
 	Vision    []Vision  `json:"vision"`
 	Mission   []Mission `json:"mission"`
@@ -24,6 +25,7 @@ func (p *Candidate) Prepare() {
 	p.Id = 0
 	p.Option = p.Option
 	p.Name = html.EscapeString(strings.TrimSpace(p.Name))
+	p.Label = html.EscapeString(strings.TrimSpace(p.Label))
 	p.Image = html.EscapeString(strings.TrimSpace(p.Image))
 	p.CreatedAt = time.Now()
 	p.UpdatedAt = time.Now()
@@ -96,7 +98,7 @@ func (p *Candidate) FindCandidateByID(db *gorm.DB, pid uint64) (*Candidate, erro
 func (p *Candidate) UpdateCandidate(db *gorm.DB) (*Candidate, error) {
 
 	var err error
-	err = db.Debug().Model(&Candidate{}).Where("id = ?", p.Id).Updates(Candidate{Option: p.Option, Name: p.Name, Image: p.Image, UpdatedAt: time.Now()}).Error
+	err = db.Debug().Model(&Candidate{}).Where("id = ?", p.Id).Updates(Candidate{Option: p.Option, Name: p.Name, Label: p.Label, Image: p.Image, UpdatedAt: time.Now()}).Error
 	if err != nil {
 		return &Candidate{}, err
 	}
