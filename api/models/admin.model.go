@@ -57,6 +57,14 @@ func (u *Admin) ValidateAdmin(action string) error {
 		}
 		return nil
 
+	case "update":
+		if u.Password == "" {
+			return errors.New("Required Password")
+		}
+		if u.Username == "" {
+			return errors.New("Required Username")
+		}
+		return nil
 	default:
 		if u.Name == "" {
 			return errors.New("Required Nickname")

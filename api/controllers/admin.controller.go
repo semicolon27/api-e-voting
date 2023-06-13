@@ -104,11 +104,11 @@ func (server *Server) UpdateAdmin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	admin.PrepareAdmin()
-	err = admin.ValidateAdmin("update")
-	if err != nil {
-		responses.ERROR(w, http.StatusUnprocessableEntity, err)
-		return
-	}
+	// err = admin.ValidateAdmin("update")
+	// if err != nil {
+	// 	responses.ERROR(w, http.StatusUnprocessableEntity, err)
+	// 	return
+	// }
 	updatedAdmin, err := admin.UpdateAdmin(server.DB, uint32(uid))
 	if err != nil {
 		formattedError := formaterror.FormatError(err.Error())

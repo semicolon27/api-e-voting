@@ -50,9 +50,6 @@ func (u *Participant) ValidateParticipant(action string) error {
 		if u.RegNumber == "" {
 			return errors.New("Required RegNumber")
 		}
-		if u.Password == "" {
-			return errors.New("Required Password")
-		}
 
 		return nil
 	case "login":
