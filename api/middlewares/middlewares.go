@@ -13,7 +13,7 @@ func SetMiddlewareJSON(next http.HandlerFunc, title string) http.HandlerFunc {
 	log.Println(title)
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "Authorization,application/json")
-		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4000")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "DELETE,OPTIONS, GET, POST, PUT")
 		w.Header().Set("Access-Control-Allow-Headers", "*")
 		if r.Method == "OPTIONS" {
@@ -29,7 +29,7 @@ func SetMiddlewareAdminAuthentication(next http.HandlerFunc, title string) http.
 	log.Println(title)
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "Authorization,application/json")
-		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4000")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "DELETE,OPTIONS, GET, POST, PUT")
 		w.Header().Set("Access-Control-Allow-Headers", "*")
 		if r.Method == "OPTIONS" {
@@ -50,7 +50,7 @@ func SetMiddlewareAuthentication(next http.HandlerFunc, title string) http.Handl
 	log.Println(title)
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "Authorization,application/json")
-		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4000")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "DELETE,OPTIONS, GET, POST, PUT")
 		w.Header().Set("Access-Control-Allow-Headers", "*")
 		if r.Method == "OPTIONS" {
