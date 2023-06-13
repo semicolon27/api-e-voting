@@ -50,13 +50,10 @@ func (u *Admin) ValidateAdmin(action string) error {
 	switch strings.ToLower(action) {
 	case "update":
 		if u.Name == "" {
-			return errors.New("Required Nickname")
+			return errors.New("Required Name")
 		}
 		if u.Username == "" {
 			return errors.New("Required Email")
-		}
-		if u.Password == "" {
-			return errors.New("Required Password")
 		}
 
 		return nil
@@ -119,20 +116,30 @@ func (u *Admin) FindAdminByID(db *gorm.DB, uid uint32) (*Admin, error) {
 }
 
 func (u *Admin) UpdateAdmin(db *gorm.DB, uid uint32) (*Admin, error) {
-
-	// To hash the password
-	err := u.BeforeSaveAdmin()
-	if err != nil {
-		log.Fatal(err)
+	var err error
+	if u.Password == "" {
+		db = db.Debug().Model(&Admin{}).Where("id = ?", uid).Take(&Admin{}).UpdateColumns(
+			map[string]interface{}{
+				"name":       u.Name,
+				"username":   u.Username,
+				"updated_at": time.Now(),
+			},
+		)
+	} else {
+		// To hash the password
+		err = u.BeforeSaveAdmin()
+		if err != nil {
+			log.Fatal(err)
+		}
+		db = db.Debug().Model(&Admin{}).Where("id = ?", uid).Take(&Admin{}).UpdateColumns(
+			map[string]interface{}{
+				"name":       u.Name,
+				"username":   u.Username,
+				"password":   u.Password,
+				"updated_at": time.Now(),
+			},
+		)
 	}
-	db = db.Debug().Model(&Admin{}).Where("id = ?", uid).Take(&Admin{}).UpdateColumns(
-		map[string]interface{}{
-			"name":       u.Name,
-			"adminname":  u.Username,
-			"password":   u.Password,
-			"updated_at": time.Now(),
-		},
-	)
 	if db.Error != nil {
 		return &Admin{}, db.Error
 	}
